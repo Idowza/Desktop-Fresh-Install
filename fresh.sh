@@ -91,7 +91,9 @@ sudo apt install -y \
 # wireguard-tools is a set of tools for configuring and using WireGuard
  wireguard-tools \
 # inkscape is a professional vector graphics editor
- inkscape
+ inkscape \
+# btop is a resource monitor that shows usage and stats for processor, memory, disks, network and processes
+ btop
 
 # Update
 update_system
