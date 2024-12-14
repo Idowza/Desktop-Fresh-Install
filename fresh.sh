@@ -24,13 +24,15 @@ update_system() {
   sudo apt autopurge -y
   sudo apt install -f -y
 }
+#update
+update_system
+
+# search for OEM kernels
+sudo apt search linux-oem-2
 
 # Set User Variables
 # kernvar is the variable for the OEM kernel
 read -p $'\e[1;33mPlease enter which OEM kernel to install (e.g. linux-oem-22.04d):\e[0m ' kernvar
-
-#update
-update_system
 
 # Git, wget, curl
 sudo apt install -y \
