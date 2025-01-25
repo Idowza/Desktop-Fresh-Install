@@ -34,24 +34,6 @@ sudo apt search linux-oem-2
 # kernvar is the variable for the OEM kernel
 read -p $'\e[1;33mPlease enter which OEM kernel to install (e.g. linux-oem-22.04d):\e[0m ' kernvar
 
-# Git, wget, curl are required for the script to work
-sudo apt install -y \
-# git is a free and open source distributed version control system
- git \
-# wget is a free utility for non-interactive download of files from the web
- wget \
-# curl is a command line tool and library for transferring data with URLs
- curl
-
-# Download and install the latest version of Steam from the official website
-wget https://steamcdn-a.akamaihd.net/client/installer/steam.deb
-sudo dpkg -i steam.deb
-sudo apt install -f -y
-rm steam.deb
-
-# Update the system
-update_system
-
 # Purge Nvidia drivers
 sudo apt purge nvidia* -y
 
@@ -63,51 +45,64 @@ sudo add-apt-repository -y ppa:graphics-drivers
 # Papirus Icons is a free and open source icon theme for Linux
 sudo add-apt-repository -y ppa:papirus/papirus
 
-# Update the system
-update_system
+packages=(
+  "$kernvar"
+  "papirus-icon-theme"
+  "nemo-image-converter"
+  "nemo-media-columns"
+  "openssh-server"
+  "virt-manager"
+  "resolvconf"
+  "wireguard"
+  "wireguard-tools"
+  "btop"
+  "git"
+  "wget"
+  "curl"
+)
 
 # Install Packages
-sudo apt install -y \
-#kernvar is the variable for the OEM kernel
- $kernvar \
-# papirus-icon-theme is a free and open source icon theme for Linux
- papirus-icon-theme \
-# nemo-image-converter is a nemo extension to mass resize or rotate images
- nemo-image-converter \
-# nemo-media-columns is a nemo extension to display media information
- nemo-media-columns \
-# openssh-server is a free implementation of the SSH protocol
- openssh-server \
-# virt-manager is a desktop user interface for managing virtual machines
- virt-manager \
-# resolvconf is a set of scripts to manage DNS information
- resolvconf \
-# wireguard is a fast, modern, and secure VPN tunnel
- wireguard \
-# wireguard-tools is a set of tools for configuring and using WireGuard
- wireguard-tools \
-# btop is a resource monitor that shows usage and stats for processor, memory, disks, network and processes
- btop
+for package in "${packages[@]}"; do
+  sudo apt install -y "$package"
+done
+
+# Check if the installation was successful
+if [ $? -eq 0 ]; then
+  echo "Packages installed successfully."
+else
+  echo "An error occurred during the installation."
+fi
+
+# Download and install the latest version of Steam from the official website
+wget https://steamcdn-a.akamaihd.net/client/installer/steam.deb
+sudo dpkg -i steam.deb
+sudo apt install -f -y
+rm steam.deb
 
 # Update the system
 update_system
 
-# Install Flatpaks 
-sudo flatpak install -y \
-# Flatseal is a graphical utility to manage Flatpak permissions
- com.github.tchx84.Flatseal \
-# pupgui2 is a GUI for managing Steam Proton compatibility installations
- net.davidotek.pupgui2 \
-# PlexDesktop is a desktop client for the Plex media server
- tv.plex.PlexDesktop \
-# GIMP is a free and open-source raster graphics editor
- org.gimp.GIMP \
-# RetroArch is a frontend for emulators, game engines, and media players
- org.libretro.RetroArch \
-# pavucontrol is a simple GTK based volume control tool
- org.pulseaudio.pavucontrol \
-# inkscape is a professional vector graphics editor
- org.inkscape.Inkscape
+# List of Flatpaks to install
+flatpaks=(
+  "com.github.tchx84.Flatseal"
+  "net.davidotek.pupgui2"
+  "tv.plex.PlexDesktop"
+  "org.gimp.GIMP"
+  "org.libretro.RetroArch"
+)
+
+# Install Flatpaks
+for flatpak in "${flatpaks[@]}"; do
+  sudo flatpak install -y "$flatpak"
+done
+
+# Check if the Flatpak installation was successful
+if [ $? -eq 0 ]; then
+  echo "Flatpaks installed successfully."
+else
+  echo "An error occurred during the Flatpak installation."
+fi
+
 # Update the system
 update_system
 
