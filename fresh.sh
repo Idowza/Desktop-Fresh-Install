@@ -42,8 +42,6 @@ sudo apt purge nvidia* -y
 sudo add-apt-repository -y ppa:flatpak/stable
 # Nvidia Graphics Drivers
 sudo add-apt-repository -y ppa:graphics-drivers
-# Papirus Icons is a free and open source icon theme for Linux
-sudo add-apt-repository -y ppa:papirus/papirus
 
 # Function to install a package and check its status
 install_package() {
@@ -68,7 +66,6 @@ install_flatpak() {
 # List of packages to install
 packages=(
   "$kernvar"
-  "papirus-icon-theme"
   "nemo-image-converter"
   "nemo-media-columns"
   "openssh-server"
