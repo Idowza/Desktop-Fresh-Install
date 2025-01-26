@@ -45,6 +45,27 @@ sudo add-apt-repository -y ppa:graphics-drivers
 # Papirus Icons is a free and open source icon theme for Linux
 sudo add-apt-repository -y ppa:papirus/papirus
 
+# Function to install a package and check its status
+install_package() {
+  local package=$1
+  sudo apt install -y "$package"
+  if [ $? -ne 0 ]; then
+    echo "An error occurred during the installation of $package."
+    exit 1
+  fi
+}
+
+# Function to install a Flatpak and check its status
+install_flatpak() {
+  local flatpak=$1
+  sudo flatpak install -y "$flatpak"
+  if [ $? -ne 0 ]; then
+    echo "An error occurred during the installation of $flatpak."
+    exit 1
+  fi
+}
+
+# List of packages to install
 packages=(
   "$kernvar"
   "papirus-icon-theme"
@@ -63,21 +84,10 @@ packages=(
 
 # Install Packages
 for package in "${packages[@]}"; do
-  sudo apt install -y "$package"
+  install_package "$package"
 done
 
-# Check if the installation was successful
-if [ $? -eq 0 ]; then
-  echo "Packages installed successfully."
-else
-  echo "An error occurred during the installation."
-fi
-
-# Download and install the latest version of Steam from the official website
-wget https://steamcdn-a.akamaihd.net/client/installer/steam.deb
-sudo dpkg -i steam.deb
-sudo apt install -f -y
-rm steam.deb
+echo "Packages installed successfully."
 
 # Update the system
 update_system
@@ -94,15 +104,16 @@ flatpaks=(
 
 # Install Flatpaks
 for flatpak in "${flatpaks[@]}"; do
-  sudo flatpak install -y "$flatpak"
+  install_flatpak "$flatpak"
 done
 
-# Check if the Flatpak installation was successful
-if [ $? -eq 0 ]; then
-  echo "Flatpaks installed successfully."
-else
-  echo "An error occurred during the Flatpak installation."
-fi
+echo "Flatpaks installed successfully."
+
+# Download and install the latest version of Steam from the official website
+wget https://steamcdn-a.akamaihd.net/client/installer/steam.deb
+sudo dpkg -i steam.deb
+sudo apt install -f -y
+rm steam.deb
 
 # Update the system
 update_system
