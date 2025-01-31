@@ -42,6 +42,11 @@ sudo apt purge nvidia* -y
 sudo add-apt-repository -y ppa:flatpak/stable
 # Nvidia Graphics Drivers
 sudo add-apt-repository -y ppa:graphics-drivers
+# Papirus Icon Theme
+sudo add-apt-repository -y ppa:papirus/papirus
+
+#update the system
+update_system
 
 # Function to install a package and check its status
 install_package() {
@@ -77,6 +82,7 @@ packages=(
   "git"
   "wget"
   "curl"
+  "papirus-icon-theme"
 )
 
 # Install Packages
