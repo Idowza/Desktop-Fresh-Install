@@ -83,6 +83,7 @@ packages=(
   "wget"
   "curl"
   "papirus-icon-theme"
+  "gnome-console"
 )
 
 # Install Packages
