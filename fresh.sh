@@ -27,14 +27,37 @@ update_system() {
 #update the system
 update_system
 
-# search for OEM kernels with the following command
-sudo apt search linux-oem-2
+# --- OEM Kernel Selection ---
+# Present a menu of available OEM kernels for the user to choose from.
+echo "Searching for available OEM kernels..."
+mapfile -t oem_kernels < <(apt-cache search linux-oem-2 | grep -o 'linux-oem-2[0-9.]\+[a-z]\?' | sort -u)
 
-# Set User Variables
-# kernvar is the variable for the OEM kernel
-read -p $'\e[1;33mPlease enter which OEM kernel to install (e.g. linux-oem-22.04d):\e[0m ' kernvar
+if [ ${#oem_kernels[@]} -eq 0 ]; then
+    echo "No OEM kernels found. Please ensure your repositories are configured correctly."
+    # Set kernvar to a dummy value so the script doesn't fail on the package list
+    kernvar="linux-generic" 
+else
+    echo "Please select which OEM kernel to install:"
+    select kern_choice in "${oem_kernels[@]}" "Skip"; do
+        if [[ -n "$kern_choice" ]]; then
+            if [[ "$kern_choice" == "Skip" ]]; then
+                echo "Skipping OEM kernel installation."
+                kernvar="" # Set to empty if skipping
+                break
+            fi
+            kernvar="$kern_choice"
+            echo "Selected kernel: $kernvar"
+            break
+        else
+            echo "Invalid selection. Please try again."
+        fi
+    done
+fi
 
-# Purge Nvidia drivers
+
+# --- Nvidia Driver Management ---
+# Purge any existing Nvidia drivers to ensure a clean installation.
+echo "Purging existing Nvidia drivers..."
 sudo apt purge nvidia* -y
 
 # Install repositories
@@ -47,6 +70,31 @@ sudo add-apt-repository -y ppa:papirus/papirus
 
 #update the system
 update_system
+
+# --- Nvidia Driver Selection ---
+# Find and list available proprietary Nvidia drivers for user selection.
+echo "Searching for available Nvidia drivers..."
+mapfile -t nvidia_drivers < <(ubuntu-drivers devices | grep 'driver\s*:\s*nvidia-driver' | grep -v 'open' | awk '{print $3}' | sort -u)
+
+if [ ${#nvidia_drivers[@]} -eq 0 ]; then
+    echo "No proprietary Nvidia drivers found. You might want to check your hardware or repository configuration."
+    echo "Skipping Nvidia driver installation."
+else
+    echo "Please select which Nvidia driver to install:"
+    select driver_choice in "${nvidia_drivers[@]}" "Skip"; do
+        if [[ -n "$driver_choice" ]]; then
+            if [[ "$driver_choice" == "Skip" ]]; then
+                echo "Skipping Nvidia driver installation."
+                break
+            fi
+            echo "Selected driver: $driver_choice"
+            install_package "$driver_choice"
+            break
+        else
+            echo "Invalid selection. Please try again."
+        fi
+    done
+fi
 
 # Function to install a package and check its status
 install_package() {
