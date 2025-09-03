@@ -14,6 +14,26 @@ handle_error() {
 # Set up error handling with the trap command
 trap 'handle_error $LINENO' ERR
 
+# Function to install a package and check its status
+install_package() {
+  local package=$1
+  sudo apt install -y "$package"
+  if [ $? -ne 0 ]; then
+    echo "An error occurred during the installation of $package."
+    exit 1
+  fi
+}
+
+# Function to install a Flatpak and check its status
+install_flatpak() {
+  local flatpak=$1
+  sudo flatpak install -y "$flatpak"
+  if [ $? -ne 0 ]; then
+    echo "An error occurred during the installation of $flatpak."
+    exit 1
+  fi
+}
+
 # Create a function for updating the system and removing unnecessary packages
 update_system() {
   sudo apt update -y
@@ -95,26 +115,6 @@ else
         fi
     done
 fi
-
-# Function to install a package and check its status
-install_package() {
-  local package=$1
-  sudo apt install -y "$package"
-  if [ $? -ne 0 ]; then
-    echo "An error occurred during the installation of $package."
-    exit 1
-  fi
-}
-
-# Function to install a Flatpak and check its status
-install_flatpak() {
-  local flatpak=$1
-  sudo flatpak install -y "$flatpak"
-  if [ $? -ne 0 ]; then
-    echo "An error occurred during the installation of $flatpak."
-    exit 1
-  fi
-}
 
 # List of packages to install
 packages=(
