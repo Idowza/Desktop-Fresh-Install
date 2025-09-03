@@ -150,7 +150,6 @@ flatpaks=(
   "net.davidotek.pupgui2"
   "tv.plex.PlexDesktop"
   "org.gimp.GIMP"
-  "org.libretro.RetroArch"
   "org.remmina.Remmina"
 )
 
