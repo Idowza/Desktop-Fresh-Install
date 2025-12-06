@@ -1,14 +1,11 @@
-#!/bin/bash 
+#!/bin/bash
 
-# Show line numbers as green text 
+# Show line numbers as green text
 export PS4=$'\e[1;32m+ ${LINENO}: \e[0m'
 
-# Enable tracing mode (show the code being executed)) 
-set -x
-
-# Function to handle errors in the script 
+# Function to handle errors in the script
 handle_error() {
-  echo -e "\033[0;31mAn error occurred in line $1. Continuing with the rest of the script.\033[0m"
+  echo -e "\033[0;31mAn error occurred in line $1.\033[0m"
 }
 
 # Set up error handling with the trap command
@@ -17,6 +14,9 @@ trap 'handle_error $LINENO' ERR
 # Function to install a package and check its status
 install_package() {
   local package=$1
+  if [[ -z "$package" ]]; then
+    return
+  fi
   sudo apt install -y "$package"
   if [ $? -ne 0 ]; then
     echo "An error occurred during the installation of $package."
@@ -38,13 +38,16 @@ install_flatpak() {
 update_system() {
   sudo apt update -y
   sudo apt upgrade -y
-  sudo flatpak update -y
+  if command -v flatpak &> /dev/null; then
+    sudo flatpak update -y
+  fi
   sudo apt autoremove -y
   sudo apt autoclean -y
   sudo apt autopurge -y
   sudo apt install -f -y
 }
-#update the system
+# Initial system update
+echo "Performing initial system update..."
 update_system
 
 # --- OEM Kernel Selection ---
@@ -54,15 +57,14 @@ mapfile -t oem_kernels < <(apt-cache search linux-oem-2 | grep -o 'linux-oem-2[0
 
 if [ ${#oem_kernels[@]} -eq 0 ]; then
     echo "No OEM kernels found. Please ensure your repositories are configured correctly."
-    # Set kernvar to a dummy value so the script doesn't fail on the package list
-    kernvar="linux-generic" 
+    kernvar=""
 else
     echo "Please select which OEM kernel to install:"
     select kern_choice in "${oem_kernels[@]}" "Skip"; do
         if [[ -n "$kern_choice" ]]; then
             if [[ "$kern_choice" == "Skip" ]]; then
                 echo "Skipping OEM kernel installation."
-                kernvar="" # Set to empty if skipping
+                kernvar=""
                 break
             fi
             kernvar="$kern_choice"
@@ -74,22 +76,24 @@ else
     done
 fi
 
-
 # --- Nvidia Driver Management ---
 # Purge any existing Nvidia drivers to ensure a clean installation.
 echo "Purging existing Nvidia drivers..."
 sudo apt purge nvidia* -y
 
 # Install repositories
-# Flatpak is a software utility for software deployment, package management, and application virtualization
+echo "Adding repositories..."
 sudo add-apt-repository -y ppa:flatpak/stable
-# Nvidia Graphics Drivers
 sudo add-apt-repository -y ppa:graphics-drivers
-# Papirus Icon Theme
 sudo add-apt-repository -y ppa:papirus/papirus
 
-#update the system
-update_system
+# Update package lists after adding repositories
+sudo apt update -y
+
+# Install Flatpak and add Flathub remote
+echo "Installing Flatpak and configuring Flathub..."
+sudo apt install -y flatpak
+sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 
 # --- Nvidia Driver Selection ---
 # Find and list available proprietary Nvidia drivers for user selection.
@@ -118,7 +122,6 @@ fi
 
 # List of packages to install
 packages=(
-  "$kernvar"
   "nemo-image-converter"
   "nemo-media-columns"
   "openssh-server"
@@ -134,15 +137,18 @@ packages=(
   "gnome-console"
 )
 
+# Add kernel to packages if selected
+if [[ -n "$kernvar" ]]; then
+  packages+=("$kernvar")
+fi
+
 # Install Packages
+echo "Installing packages..."
 for package in "${packages[@]}"; do
   install_package "$package"
 done
 
 echo "Packages installed successfully."
-
-# Update the system
-update_system
 
 # List of Flatpaks to install
 flatpaks=(
@@ -154,6 +160,7 @@ flatpaks=(
 )
 
 # Install Flatpaks
+echo "Installing Flatpaks..."
 for flatpak in "${flatpaks[@]}"; do
   install_flatpak "$flatpak"
 done
@@ -161,12 +168,14 @@ done
 echo "Flatpaks installed successfully."
 
 # Download and install the latest version of Steam from the official website
+echo "Installing Steam..."
 wget https://steamcdn-a.akamaihd.net/client/installer/steam.deb
 sudo dpkg -i steam.deb
 sudo apt install -f -y
 rm steam.deb
 
-# Update the system
+# Final system cleanup
+echo "Performing final system cleanup..."
 update_system
 
 exit 0
