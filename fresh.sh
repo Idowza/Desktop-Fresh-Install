@@ -135,6 +135,7 @@ packages=(
   "curl"
   "papirus-icon-theme"
   "gnome-console"
+  "adb"
 )
 
 # Add kernel to packages if selected
@@ -173,6 +174,23 @@ wget https://steamcdn-a.akamaihd.net/client/installer/steam.deb
 sudo dpkg -i steam.deb
 sudo apt install -f -y
 rm steam.deb
+
+# Download latest scrcpy to Downloads
+echo "Downloading latest scrcpy to Downloads..."
+SCRCPY_VERSION=$(curl -s https://api.github.com/repos/Genymobile/scrcpy/releases/latest | grep "tag_name" | cut -d '"' -f 4 || true)
+if [[ -n "$SCRCPY_VERSION" ]]; then
+  wget -P "$HOME/Downloads" "https://github.com/Genymobile/scrcpy/archive/refs/tags/${SCRCPY_VERSION}.tar.gz"
+  echo "Downloaded scrcpy ${SCRCPY_VERSION} to $HOME/Downloads"
+else
+  echo "Failed to fetch latest scrcpy version."
+fi
+
+# Download and install the latest version of VS Code
+echo "Installing VS Code..."
+wget -O vscode.deb "https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64"
+sudo dpkg -i vscode.deb
+sudo apt install -f -y
+rm vscode.deb
 
 # Final system cleanup
 echo "Performing final system cleanup..."
