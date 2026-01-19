@@ -48,6 +48,7 @@ Follow the on-screen prompts to select your preferred kernel and graphics driver
 *   **nemo-image-converter** & **nemo-media-columns**: File manager enhancements
 *   **gnome-console**: Terminal emulator
 *   **papirus-icon-theme**: Modern icon theme
+*   **adb**: Android Debug Bridge
 
 ### Flatpak Applications
 *   **Flatseal**: Manage Flatpak permissions
@@ -58,6 +59,8 @@ Follow the on-screen prompts to select your preferred kernel and graphics driver
 
 ### Other
 *   **Steam**: Valve's digital distribution platform
+*   **Visual Studio Code**: Code editor (latest stable .deb)
+*   **scrcpy**: Android screen mirroring (latest source tarball downloaded to ~/Downloads)
 
 ## Customization
 
